@@ -1,6 +1,6 @@
 name = "pomodoro"
 pages_build_output_dir = "./dist"
-compatibility_date = "2026-02-02"
+compatibility_date = "2026-03-24"
 compatibility_flags = [ "nodejs_compat" ]
 
 # ⚡ D1 Database Binding
