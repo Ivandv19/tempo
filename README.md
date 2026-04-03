@@ -1,93 +1,75 @@
-# Pomodoro Timer App
+# Sinx Pomodoro (Temporizador de Productividad) ⏱️
 
-Una aplicación web moderna para gestionar tu tiempo de estudio o trabajo usando la técnica Pomodoro. Construida con Astro, Preact y TypeScript para una experiencia rápida y accesible.
+## Descripción
 
-## ✨ Características
+Esta es una aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio o trabajo utilizando la técnica Pomodoro. El objetivo es maximizar tu productividad dividiendo el tiempo en bloques de enfoque total seguidos de breves descansos, todo dentro de una interfaz limpia y rápida.
 
-- **Técnica Pomodoro Clásica**: Sesiones de 25 minutos de foco alternadas con descansos de 5-15 minutos
-- **Personalización**: Elige la duración total de tu sesión de trabajo
-- **Interfaz Intuitiva**: Temporizador visual con círculo de progreso
-- **Historial Diario**: Rastrea tus sesiones completadas
-- **Notificaciones**: Alertas del navegador cuando termina una sesión
-- **Sonido de Alarma**: Audio motivacional al finalizar
-- **Internacionalización**: Soporte para español e inglés
-- **Tema Oscuro/Claro**: Adaptable a tus preferencias
-- **Responsive**: Funciona en desktop y móvil
+## Características
 
+- **Técnica Pomodoro Estándar**: Ciclos automatizados de 25 minutos de trabajo intenso seguidos de descansos cortos (5 min) y largos (15 min).
+- **Personalización Flexible**: Permite elegir la duración total de tu sesión de trabajo de acuerdo a tus necesidades del día.
+- **Progreso Visual**: Temporizador interactivo con un diseño circular que indica claramente cuánto tiempo falta para el siguiente descanso.
+- **Alertas y Notificaciones**: Notificaciones del navegador y sonidos motivacionales que te avisan exactamente cuándo terminar cada bloque.
+- **Historial de Foco**: Registro diario de tus sesiones completadas para que puedas medir tu constancia.
 
-## 🚀 Inicio Rápido
+## Secciones
 
-### Prerrequisitos
+1. **Temporizador Principal**: El núcleo de la app, donde ocurre la cuenta regresiva y se visualiza el progreso del ciclo actual.
+2. **Configuración de Sesión**: Panel lateral o inicial donde ajustas el tiempo total que planeas dedicar a tu tarea.
+3. **Historial y Estadísticas**: Apartado dedicado a mostrar el resumen de las sesiones de enfoque logradas durante el día.
 
-- Node.js 18+ o Bun
-- Git
+## Uso
 
-### Instalación
+- **Visualizar Contenido**: La aplicación ya está activa y puedes usarla para concentrarte aquí: [Sinx Pomodoro](https://sinx-pomodoro.mgdc.site/).
+- **Configurar y Arrancar**: Elige cuánto tiempo vas a trabajar y dale al botón de inicio; la app se encarga de organizar los descansos automáticamente.
+- **Alternar Idiomas**: Puedes cambiar entre español e inglés de forma sencilla para que la interfaz se adapte a tu preferencia.
 
-1. Clona el repositorio:
+## Tecnologías Utilizadas
+
+- HTML / CSS / TypeScript
+- Astro 5
+- React 19
+- Tailwind CSS 4
+- Hono
+- Drizzle ORM
+- Bun
+
+## Instalación
+
+1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git.
+
 ```bash
-git clone <tu-repo-url>
-cd pomodoro
+git clone https://github.com/Ivandv19/sinx-pomodoro-v2.git
 ```
 
-2. Instala dependencias:
+2. **Instalar Dependencias**: Abre una terminal en la carpeta del proyecto y ejecuta:
+
 ```bash
 bun install
-# o npm install
 ```
 
-3. Inicia el servidor de desarrollo:
-```bash
-bun dev
-# o npm run dev
-```
+3. **Variables Prácticas**: Crea un archivo `.env` o `.dev.vars` en la raíz. Necesitarás configurar `DATABASE_URL` para la persistencia del historial y las claves de seguridad necesarias para el funcionamiento del sistema.
 
-4. Abre [http://localhost:4321](http://localhost:4321) en tu navegador
-
-### Build para Producción
+4. **Iniciar el Proyecto**: Borra las distracciones y enciende el temporizador localmente con:
 
 ```bash
-bun build
-# o npm run build
+bun run dev
 ```
 
-Los archivos se generan en la carpeta `dist/`.
+## Créditos
 
-## 🛠️ Scripts Disponibles
+Este proyecto es parte de las herramientas de productividad personal de mi ecosistema.
 
-- `dev`: Inicia servidor de desarrollo
-- `build`: Construye para producción
-- `preview`: Vista previa del build
-- `lint`: Ejecuta linting con Biome
-- `format`: Formatea código con Biome
+- Desarrollado por Ivan Cruz.
 
-## 🏗️ Tecnologías
+## Despliegue
 
-- **Framework**: [Astro](https://astro.build/) - Generador de sitios estáticos
-- **UI**: [Preact](https://preactjs.com/) - React ligero
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [DaisyUI](https://daisyui.com/)
-- **TypeScript**: Tipado fuerte
-- **Linting**: [Biome](https://biomejs.dev/) - Linting y formateo rápido
-- **Internacionalización**: Soporte nativo de Astro
+La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [sinx-pomodoro.mgdc.site](https://sinx-pomodoro.mgdc.site/)
 
-## 📱 Uso
+## Licencia
 
-1. **Configura tu sesión**: Elige cuánto tiempo tienes disponible (ej: 2 horas)
-2. **Inicia el timer**: La app genera automáticamente ciclos de foco y descanso
-3. **Trabaja**: El temporizador cuenta regresivamente con visualización circular
-4. **Descansa**: Alarma sonora y notificación al finalizar cada bloque
-5. **Revisa tu progreso**: Ve tu historial diario de sesiones completadas
+Licencia de Uso Personal:
 
-## 🎯 Técnica Pomodoro
+Este software es propiedad de **Ivan Cruz**. Se permite el uso de este software solo para fines personales y no comerciales. No se permite la distribución, modificación ni uso comercial de este software sin el consentimiento expreso de **Ivan Cruz**.
 
-La app implementa la técnica Pomodoro estándar:
-- **Foco**: 25 minutos de trabajo concentrado
-- **Descanso corto**: 5 minutos después de cada sesión de foco
-- **Descanso largo**: 15 minutos después de 4 ciclos
-- **Ciclos**: Se repiten hasta completar el tiempo planificado
-
-
-## 🙏 Agradecimientos
-
-- Inspirado en la técnica Pomodoro de Francesco Cirillo
-- Construido con tecnologías modernas de la web
+Cualquier uso no autorizado puede resultar en acciones legales.
