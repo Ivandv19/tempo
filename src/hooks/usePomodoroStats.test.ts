@@ -52,11 +52,11 @@ describe('usePomodoroStats', () => {
         const wednesday = new Date(2023, 0, 4, 12, 0, 0); // Jan 4, 2023
         vi.setSystemTime(wednesday);
 
-        const { result } = renderHook(() => usePomodoroStats(false));
+        renderHook(() => usePomodoroStats(false));
 
         act(() => {
             // Add Monday session (2 days ago)
-            const monday = new Date(2023, 0, 2, 10, 0, 0);
+            const _monday = new Date(2023, 0, 2, 10, 0, 0);
             // We need to manually inject into history or mock the initial state because addSession uses current time for end.
             // But addSession uses the current time for `endTime`.
             // To test past sessions, simpler to mock localStorage data BEFORE renderHook.

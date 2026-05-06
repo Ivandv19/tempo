@@ -1,5 +1,5 @@
 /** @jsxImportSource react */
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import TimerSetup from "./TimerSetup";
 import TimerRun from "./TimerRun"; 
 import HeroSection from "./HeroSection"; 
@@ -12,9 +12,9 @@ interface Props {
 
 const STORAGE_KEY = 'pomodoro_active_session';
 
-export default function PomodoroManager({ lang = 'es', isLoggedIn: initialIsLoggedIn = false }: Props) {
+export default function PomodoroManager({ lang = 'es' }: Props) {
   const [selectedMinutes, setSelectedMinutes] = useState<number | null>(null);
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
   const isLoggedIn = !!session;
 
   // 🔥 Check for saved session on mount

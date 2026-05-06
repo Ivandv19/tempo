@@ -95,10 +95,34 @@ const jsonLdDescription = lang === 'en'
 						applyTheme(newTheme);
 					});
 				}
+
+				// Header scroll detection
+				const headerScroll = () => {
+					const header = document.querySelector('header');
+					if (!header) return;
+					if (window.scrollY > 30) {
+						header.classList.add('header-scrolled');
+					} else {
+						header.classList.remove('header-scrolled');
+					}
+				};
+				headerScroll();
+				window.addEventListener('scroll', headerScroll, { passive: true });
 			};
 
 			document.addEventListener('astro:page-load', onPageLoad);
-			document.addEventListener('astro:after-swap', () => applyTheme(getTheme()));
+			document.addEventListener('astro:after-swap', () => {
+				applyTheme(getTheme());
+				// Re-check header state after page swap
+				const header = document.querySelector('header');
+				if (header) {
+					if (window.scrollY > 30) {
+						header.classList.add('header-scrolled');
+					} else {
+						header.classList.remove('header-scrolled');
+					}
+				}
+			});
 		</script>
 		
 		<meta name="description" content={description} />

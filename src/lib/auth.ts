@@ -4,6 +4,13 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "../db/schema";
 
+interface HashResponse {
+  data: { hash: string };
+}
+interface VerifyResponse {
+  data: { match: boolean };
+}
+
 /**
  * Sistema de Cache de Instancias
  * Cloudflare Workers puede reutilizar procesos calientes (warm starts).
@@ -39,7 +46,7 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
     // Intentar recuperar de la cache para mejorar el tiempo de respuesta (Warm Start)
     if (authInstances.has(cacheKey)) {
         // console.log(`[Auth] Reusando instancia para cacheKey: ${cacheKey.replace(/-[^-]+$/, '-*****')}`);
-        return authInstances.get(cacheKey)!;
+        return authInstances.get(cacheKey) as ReturnType<typeof betterAuth>;
     }
 
     // console.log(`[Auth] Creando nueva instancia. URL: ${env?.BETTER_AUTH_URL || 'n/a'}`);
@@ -82,7 +89,7 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                 const value = await kv.get(key);
                 return value ? JSON.parse(value) : null;
             },
-            set: async (key: string, value: any, ttl?: number) => {
+            set: async (key: string, value: unknown, ttl?: number) => {
                 if (ttl) {
                     await kv.put(key, JSON.stringify(value), { expirationTtl: ttl });
                 } else {
@@ -121,7 +128,7 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                         },
                         body: JSON.stringify({ password }),
                     });
-                    const jsonRes = await response.json() as { data: { hash: string } };
+                    const jsonRes: HashResponse = await response.json();
                     return jsonRes.data.hash;
                 },
                 /**
@@ -136,7 +143,7 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                         },
                         body: JSON.stringify({ password, hash }),
                     });
-                    const jsonRes = await response.json() as { data: { match: boolean } };
+                    const jsonRes: VerifyResponse = await response.json();
                     return jsonRes.data.match;
                 }
             }
@@ -185,7 +192,7 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                         body: `secret=${secret}&response=${token}`,
                     });
 
-                    const outcome: any = await result.json();
+                    const outcome: { success: boolean } = await result.json();
                     if (!outcome.success) {
                         throw new Error("La verificación de seguridad falló. Intenta de nuevo.");
                     }

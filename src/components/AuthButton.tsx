@@ -1,5 +1,5 @@
 /** @jsxImportSource react */
-import React from 'react';
+import { Icon } from '@iconify/react';
 import { authClient } from '../lib/auth-client';
 
 interface Props {
@@ -26,18 +26,21 @@ export default function AuthButton({ loginText, logoutText, loginUrl }: Props) {
 
   if (session) {
     return (
-      <button 
+      <button
+        type="button"
         onClick={handleLogout}
-        className="btn btn-ghost btn-sm"
+        className="btn btn-ghost btn-sm gap-2 px-3 group"
       >
-        {logoutText}
+        <Icon icon="lucide:log-out" className="w-4 h-4 group-hover:text-primary transition-colors" />
+        <span>{logoutText}</span>
       </button>
     );
   }
 
   return (
-    <a href={loginUrl} className="btn btn-ghost btn-sm">
-      {loginText}
+    <a href={loginUrl} className="btn btn-ghost btn-sm gap-2 px-3 group">
+      <Icon icon="lucide:log-in" className="w-4 h-4 group-hover:text-primary transition-colors" />
+      <span>{loginText}</span>
     </a>
   );
 }

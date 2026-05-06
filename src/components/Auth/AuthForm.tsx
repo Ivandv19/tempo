@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
-import React, { useState, useRef } from 'react';
+import type React from 'react';
+import { useState, useRef } from 'react';
 import { signIn, signUp } from '../../lib/auth-client';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
@@ -136,9 +137,9 @@ export default function AuthForm({ translations, redirectPath }: Props) {
       // Si todo sale bien, redirigir a la ruta especificada
       window.location.href = redirectPath;
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Manejo de errores: Mostramos el mensaje y reseteamos el CAPTCHA por seguridad
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
       setLoading(false);
       setTurnstileToken(null);
       turnstileRef.current?.reset();
@@ -150,10 +151,10 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 
       {/* Cabecera del Formulario */}
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-black bg-linear-to-r from-(--auth-title-from) to-(--auth-title-to) bg-clip-text text-transparent font-[Outfit] tracking-tight py-1">
+        <h2 key={isLogin ? 'login-title' : 'signup-title'} className="text-4xl font-black bg-linear-to-r from-(--auth-title-from) to-(--auth-title-to) bg-clip-text text-transparent font-[Outfit] tracking-tight py-1 animate-fade-in-up">
           {isLogin ? translations.loginTitle : translations.signupTitle}
         </h2>
-        <p className="text-sm text-(--auth-text-secondary) font-medium">
+        <p key={isLogin ? 'login-sub' : 'signup-sub'} className="text-sm text-(--auth-text-secondary) font-medium">
           {isLogin ? translations.loginSubtitle : translations.signupSubtitle}{' '}
           <button
             onClick={toggleMode}
@@ -165,7 +166,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
         </p>
       </div>
 
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      <form key={isLogin ? 'login-form' : 'signup-form'} className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Campo de Correo Electrónico */}
           <div className="group">
@@ -179,7 +180,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-(--auth-accent)/40 focus:border-(--auth-accent)/40 focus:z-10 sm:text-sm transition-all"
+                className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
                 placeholder={translations.emailPlaceholder}
               />
               <span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
@@ -202,7 +203,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
                 required
                 value={password}
                 onChange={handlePasswordChange}
-                className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-(--auth-accent)/40 focus:border-(--auth-accent)/40 focus:z-10 sm:text-sm transition-all"
+                className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
                 placeholder={translations.passwordPlaceholder}
               />
               <span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
@@ -243,13 +244,14 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 
         {/* Sección de Mensajes de Error */}
         {error && (
-          <div className="text-red-600 dark:text-red-400 shadow-md text-xs font-bold text-center bg-red-100 dark:bg-red-400/10 py-2.5 px-4 rounded-xl border border-red-300 dark:border-red-400/20">
-            {error}
+          <div className="flex items-center gap-3 text-red-600 dark:text-red-400 text-xs font-bold bg-red-50 dark:bg-red-950/50 py-3 px-4 rounded-xl border border-red-200 dark:border-red-800/30 animate-fade-in">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{error}</span>
           </div>
         )}
 
         {/* Widget de Verificación Turnstile */}
-        <div className="w-full flex justify-center py-2">
+        <div className="w-full py-2">
           <Turnstile
             ref={turnstileRef}
             siteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}

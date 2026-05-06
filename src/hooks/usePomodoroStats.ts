@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 
 export type SessionType = "focus" | "short" | "long";
 
+export interface Session {
+    type: SessionType;
+    duration: number; // segundos
+    label: string;
+}
+
 export interface LogEntry {
   id: number;
   type: SessionType;

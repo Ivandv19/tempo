@@ -19,7 +19,7 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   
   # Content Security Policy - Umami Analytics + Cloudflare Turnstile
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; img-src 'self' data: https://pomodoro-assets.mgdc.site; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; media-src 'self' https://pomodoro-assets.mgdc.site; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;
+   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; img-src 'self' data: https://pomodoro-assets.mgdc.site; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com https://api.iconify.design; frame-src https://challenges.cloudflare.com; media-src 'self' https://pomodoro-assets.mgdc.site; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;
 
 # Cache Headers para Assets Estáticos (JS, CSS)
 # Edge: 30 días | Browser: 1 año (immutable porque tienen hash en el nombre)

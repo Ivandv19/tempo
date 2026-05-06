@@ -179,3 +179,52 @@ h6 {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: oklch(0.5 0.03 250 / 0.4);
 }
+
+/* ========== HEADER STICKY ========== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+header.header-scrolled {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: oklch(var(--b1) / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* ========== MOBILE MENU ========== */
+#mobile-overlay {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#mobile-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+#mobile-panel {
+  transition: transform 0.3s ease;
+}
+
+#mobile-panel.open {
+  transform: translateX(0);
+}
+
+/* Evitar scroll del body cuando el menú está abierto */
+body.menu-open {
+  overflow: hidden;
+}
+
+/* ========== ERROR ANIMATION ========== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}

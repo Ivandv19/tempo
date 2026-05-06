@@ -2,8 +2,8 @@
 // src/components/Footer.astro
 import { useTranslations } from "../i18n/utils";
 
-const currentLang = Astro.currentLocale || "es";
-const t = useTranslations(currentLang as "es" | "en");
+const currentLang: 'es' | 'en' = (Astro.currentLocale === 'en' ? 'en' : 'es');
+const t = useTranslations(currentLang);
 const year = new Date().getFullYear();
 ---
 

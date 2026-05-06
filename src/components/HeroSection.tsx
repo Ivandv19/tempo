@@ -1,5 +1,4 @@
 /** @jsxImportSource react */
-import React from 'react';
 import { ui } from '../i18n/ui';
 
 interface Props {

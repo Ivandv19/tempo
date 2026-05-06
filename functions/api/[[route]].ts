@@ -71,7 +71,7 @@ const checkRateLimit = async (kv: KVNamespace, ip: string, maxAttempts = 20, win
 };
 
 // Helper para obtener la sesión actual
-const getSession = async (c: any) => {
+const getSession = async (c: { env: Bindings; req: { raw: { headers: Headers } } }) => {
     return await auth(c.env.DB, c.env.LUCIA_KV, c.env).api.getSession({
         headers: c.req.raw.headers
     });
@@ -102,7 +102,7 @@ app.get('/pomodoros', async (c) => {
         "SELECT id, type, minutes, created_at as createdAt FROM pomodoro_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 50"
     ).bind(session.user.id).all();
 
-    return c.json(results.map((row: any) => ({
+    return c.json(results.map((row: Record<string, unknown>) => ({
         ...row,
         startTime: new Date(row.createdAt - (row.minutes * 60000)).toISOString(),
         endTime: new Date(row.createdAt).toISOString()

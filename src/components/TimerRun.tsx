@@ -1,22 +1,18 @@
 // src/components/TimerRun.tsx
 /** @jsxImportSource react */
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { usePomodoroStats, type SessionType } from '../hooks/usePomodoroStats';
+import type { Session } from '../hooks/usePomodoroStats';
 import DailySummary from './DailySummary';
 import WeeklySummary from './WeeklySummary';
 import { useTranslations } from '../i18n/utils';
+import ClockFace from './ClockFace';
 
 interface Props {
     initialMinutes: number;
     onReset: () => void;
     lang: 'es' | 'en';
     isLoggedIn?: boolean;
-}
-
-interface Session {
-    type: SessionType;
-    duration: number; // segundos
-    label: string;
 }
 
 const ALARM_SOUND = "https://pomodoro-assets.mgdc.site/alarm.mp3";
@@ -61,7 +57,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
         try {
             const saved = localStorage.getItem(TIMER_STATE_KEY);
             return saved ? JSON.parse(saved) : null;
-        } catch (e) {
+        } catch (_e) {
             return null;
         }
     };
@@ -120,7 +116,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
     const endTimeRef = useRef<number>(0);
 
     // Guard to prevent duplicate processing of the same session
-    const lastProcessedSessionRef = useRef<number>(-1);
+    const processedSessionsRef = useRef<Set<number>>(new Set());
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -192,7 +188,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
         }
         else if (timeLeft === 0 && !isSessionFinished && currentSession) {
             // 🔥 GUARD: Prevent duplicate execution
-            if (lastProcessedSessionRef.current !== currentSessionIndex) {
+            if (!processedSessionsRef.current.has(currentSessionIndex)) {
                 addSession(
                     currentSession.type,
                     Math.floor(currentSession.duration / 60),
@@ -200,7 +196,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
                 );
 
                 // Mark as processed immediately
-                lastProcessedSessionRef.current = currentSessionIndex;
+                processedSessionsRef.current.add(currentSessionIndex);
 
                 const audio = new Audio(ALARM_SOUND);
                 audio.volume = 0.7;
@@ -285,10 +281,6 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
     }
 
     const theme = getTheme(currentSession.type);
-    const radius = 120;
-    const circumference = 2 * Math.PI * radius;
-    const progress = timeLeft / currentSession.duration;
-    const dashOffset = circumference - (progress * circumference);
 
     // Hora final estimada
     const estimatedFinishTime = useMemo(() => {
@@ -306,67 +298,22 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
 
             <div className="flex flex-col items-center space-y-12">
 
-                {/* 1. RELOJ (Visual igual) */}
-                <div className="flex flex-col items-center justify-center space-y-8">
-                    <div className="text-center">
-                        <span className="text-sm font-bold opacity-50 tracking-widest uppercase">
-                            {t('timer.run.current')}
-                        </span>
-                        <h2 className={`text-4xl font-black mt-2 ${theme.color} drop-shadow-sm`}>
-                            {currentSession.label}
-                        </h2>
-                    </div>
-
-                    <div className="relative w-80 h-80 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 280 280" role="img" aria-label="Temporizador Pomodoro">
-                            <title>Temporizador Pomodoro</title>
-                            <circle cx="140" cy="140" r={radius} stroke="currentColor" strokeWidth="12" fill="none" className="text-base-300 dark:text-base-content/10" />
-                            <circle cx="140" cy="140" r={radius} stroke="currentColor" strokeWidth="12" fill="none" strokeLinecap="round"
-                                className={`transition-all duration-1000 ease-linear ${theme.stroke}`}
-                                style={{ strokeDasharray: circumference, strokeDashoffset: dashOffset }}
-                            />
-                            <circle cx="140" cy="20" r="4" className="fill-base-content/30" />
-                            <circle cx="260" cy="140" r="4" className="fill-base-content/30" />
-                            <circle cx="140" cy="260" r="4" className="fill-base-content/30" />
-                            <circle cx="20" cy="140" r="4" className="fill-base-content/30" />
-                        </svg>
-
-                        <div className="absolute flex flex-col items-center z-10">
-                            <span className={`text-7xl font-mono font-bold tracking-tighter ${theme.color}`}>
-                                {formatTime(timeLeft)}
-                            </span>
-                            {isSessionFinished && (
-                                <span className="text-sm mt-2 uppercase font-bold animate-pulse text-base-content">
-                                    {t('timer.run.finished')}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex gap-6 items-center">
-                        {!isSessionFinished ? (
-                            <button
-                                type="button"
-                                className={`btn btn-lg h-16 px-10 rounded-full border-none shadow-xl hover:scale-105 transition-transform ${isActive ? 'bg-base-200 text-base-content' : theme.bgButton
-                                    }`}
-                                onClick={() => setIsActive(!isActive)}
-                            >
-                                {isActive ? (
-                                    <span className="text-lg font-bold flex items-center gap-2">{t('timer.run.pause')}</span>
-                                ) : (
-                                    <span className="text-lg font-bold flex items-center gap-2">{t('timer.run.resume')}</span>
-                                )}
-                            </button>
-                        ) : (
-                            <button type="button" className={`btn btn-lg h-16 px-10 rounded-full border-none shadow-xl animate-bounce text-white ${theme.bgButton}`} onClick={() => { localStorage.removeItem('pomodoro_timer_state'); onReset(); }}>
-                                {t('timer.run.new')}
-                            </button>
-                        )}
-                        <button type="button" onClick={() => { localStorage.removeItem('pomodoro_timer_state'); onReset(); }} className="btn btn-circle btn-ghost opacity-60 hover:opacity-100 tooltip" data-tip={t('timer.run.cancel')} aria-label={t('timer.run.cancel')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>
-                </div>
+                {/* 1. RELOJ */}
+                <ClockFace
+                  timeLeft={timeLeft}
+                  totalDuration={currentSession.duration}
+                  currentLabel={currentSession.label}
+                  isActive={isActive}
+                  isSessionFinished={isSessionFinished}
+                  theme={theme}
+                  formatTime={formatTime}
+                  onTogglePause={() => setIsActive(!isActive)}
+                  onReset={() => { localStorage.removeItem('pomodoro_timer_state'); onReset(); }}
+                  pauseLabel={t('timer.run.pause')}
+                  resumeLabel={t('timer.run.resume')}
+                  newPlanLabel={t('timer.run.new')}
+                  finishedLabel={t('timer.run.finished')}
+                />
 
                 {/* 2. AGENDA HORIZONTAL (Visual igual) */}
                 <div className="w-full bg-base-100/50 backdrop-blur-sm rounded-2xl p-6 border border-base-200 shadow-xl transition-colors duration-400">

@@ -1,5 +1,4 @@
 /** @jsxImportSource react */
-import React from 'react';
 import { ui } from '../i18n/ui';
 
 interface WeeklyStats {
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export default function WeeklySummary({ lang, weeklyStats }: Props) {
-    const t = ui[lang];
     const daysEs = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
     const daysEn = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     const daysLabels = lang === 'es' ? daysEs : daysEn;

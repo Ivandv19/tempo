@@ -1,5 +1,4 @@
 /** @jsxImportSource react */
-import React from 'react';
 import { signOut } from '../lib/auth-client';
 
 interface Props {
@@ -18,8 +17,9 @@ export default function LogoutButton({ label }: Props) {
     };
 
     return (
-        <button 
-            onClick={handleLogout} 
+        <button
+            type="button"
+            onClick={handleLogout}
             className="btn btn-ghost btn-sm text-primary hover:text-primary-focus"
         >
             {label}

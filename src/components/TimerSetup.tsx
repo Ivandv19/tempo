@@ -1,6 +1,6 @@
 // src/components/TimerSetup.tsx
 /** @jsxImportSource react */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { usePomodoroStats } from '../hooks/usePomodoroStats';
 import DailySummary from './DailySummary';
 import { useTranslations } from '../i18n/utils';
