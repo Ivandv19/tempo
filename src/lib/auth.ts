@@ -97,8 +97,9 @@ export const auth = (
 						return value ? JSON.parse(value) : null;
 					},
 					set: async (key: string, value: unknown, ttl?: number) => {
-						if (ttl) {
-							await kv.put(key, JSON.stringify(value), { expirationTtl: ttl });
+						if (ttl !== undefined) {
+							const safeTtl = Math.max(60, ttl);
+							await kv.put(key, JSON.stringify(value), { expirationTtl: safeTtl });
 						} else {
 							await kv.put(key, JSON.stringify(value));
 						}
