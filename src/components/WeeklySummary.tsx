@@ -52,7 +52,7 @@ export default function WeeklySummary({ lang, weeklyStats }: Props) {
 								className="w-full border-b border-dashed border-base-content/5 h-full last:border-0 relative"
 							>
 								<span className="absolute -top-2 left-0 text-[9px] font-mono opacity-20">
-									{i === 0 ? `${maxHours}h` : i === 1 ? `${maxHours / 2}h` : ""}
+									{pos === "top" ? `${maxHours}h` : pos === "mid" ? `${maxHours / 2}h` : ""}
 								</span>
 							</div>
 						),
