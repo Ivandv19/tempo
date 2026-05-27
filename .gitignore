@@ -1,7 +1,7 @@
 # build output
 dist/
 
-# Documentation
+
 docs/
 
 # generated types

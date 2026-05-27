@@ -93,6 +93,44 @@ const getSession = async (c: {
 	});
 };
 
+// --- ENDPOINTS DE CATEGORÍAS ---
+
+app.get("/categorias", async (c) => {
+	const session = await getSession(c);
+	if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+	const { results } = await c.env.DB.prepare(
+		"SELECT id, nombre FROM categoria WHERE user_id = ? ORDER BY id",
+	)
+		.bind(session.user.id)
+		.all();
+
+	return c.json({ data: results });
+});
+
+app.post("/categorias/seed", async (c) => {
+	const session = await getSession(c);
+	if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+	const defaults = [
+		{ nombre: "Trabajo", userId: session.user.id },
+		{ nombre: "Estudio", userId: session.user.id },
+		{ nombre: "Personal", userId: session.user.id },
+	];
+
+	await c.env.DB.prepare(
+		"INSERT INTO categoria (nombre, user_id) VALUES (?, ?), (?, ?), (?, ?)",
+	)
+		.bind(
+			defaults[0].nombre, defaults[0].userId,
+			defaults[1].nombre, defaults[1].userId,
+			defaults[2].nombre, defaults[2].userId,
+		)
+		.run();
+
+	return c.json({ data: defaults });
+});
+
 // --- ENDPOINTS ESPECÍFICOS DE POMODORO ---
 // Deben ir ANTES del catch-all (*) para no ser interceptados por Better Auth
 
