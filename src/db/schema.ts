@@ -1,5 +1,11 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+	ESTADOS_BREAK,
+	ESTADOS_POMODORO,
+	ESTADOS_TAREA,
+	TIPOS_BREAK,
+} from "../lib/constants";
 
 // ─── Better Auth ───────────────────────────────────────────
 
@@ -72,7 +78,9 @@ export const tarea = sqliteTable("tarea", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id),
-	estado: text("estado", { enum: ["pending", "in_progress", "done", "abandoned"] })
+	estado: text("estado", {
+		enum: [...ESTADOS_TAREA],
+	})
 		.notNull()
 		.default("pending"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
@@ -84,7 +92,9 @@ export const pomodoro = sqliteTable("pomodoro", {
 	tareaId: integer("tarea_id")
 		.notNull()
 		.references(() => tarea.id),
-	status: text("status", { enum: ["active", "completed", "completed_early", "interrupted"] }).notNull(),
+	status: text("status", {
+		enum: [...ESTADOS_POMODORO],
+	}).notNull(),
 	minutesPlanned: integer("minutes_planned").notNull().default(25),
 	minutesActual: integer("minutes_actual"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
@@ -124,8 +134,10 @@ export const break_ = sqliteTable("break", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id),
-	tipo: text("tipo", { enum: ["short", "long"] }).notNull(),
-	status: text("status", { enum: ["active", "completed", "skipped", "interrupted"] }).notNull(),
+	tipo: text("tipo", { enum: [...TIPOS_BREAK] }).notNull(),
+	status: text("status", {
+		enum: [...ESTADOS_BREAK],
+	}).notNull(),
 	minutesPlanned: integer("minutes_planned").notNull(),
 	minutesActual: integer("minutes_actual"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),

@@ -6,17 +6,18 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 
 ## Características
 
-- **Técnica Pomodoro Estándar**: Ciclos automatizados de 25 minutos de trabajo intenso seguidos de descansos cortos (5 min) y largos (15 min).
-- **Personalización Flexible**: Permite elegir la duración total de tu sesión de trabajo de acuerdo a tus necesidades del día.
-- **Progreso Visual**: Temporizador interactivo con un diseño circular que indica claramente cuánto tiempo falta para el siguiente descanso.
-- **Alertas y Notificaciones**: Notificaciones del navegador y sonidos motivacionales que te avisan exactamente cuándo terminar cada bloque.
-- **Historial de Foco**: Registro diario de tus sesiones completadas para que puedas medir tu constancia.
+- **Técnica Pomodoro basada en tareas**: Selecciona una tarea antes de empezar. Cada pomodoro de 25 minutos está vinculado a una tarea específica.
+- **Datos de sesión guardados**: Si interrumpes un pomodoro, el tiempo restante se guarda. Puedes retomarlo después desde donde lo dejaste.
+- **Estadísticas semanales y diarias**: Visualiza tu progreso con gráficos de barras y líneas de promedio.
+- **Soporte para usuarios invitados y registrados**: Los invitados guardan datos en localStorage; los usuarios registrados persisten en D1 via API.
+- **Modo oscuro/claro**: Tema nord (claro) y business (oscuro) con DaisyUI.
+- **Internacionalización**: Español e inglés completos.
 
 ## Secciones
 
-1. **Temporizador Principal**: El núcleo de la app, donde ocurre la cuenta regresiva y se visualiza el progreso del ciclo actual.
-2. **Configuración de Sesión**: Panel lateral o inicial donde ajustas el tiempo total que planeas dedicar a tu tarea.
-3. **Historial y Estadísticas**: Apartado dedicado a mostrar el resumen de las sesiones de enfoque logradas durante el día.
+1. **Selector de Tareas**: Crea tareas con categorías (Trabajo, Estudio, Personal) y selecciona una para empezar un pomodoro.
+2. **Temporizador**: Cuenta regresiva de 25 minutos con círculo SVG de progreso. Botones de pausa, continuar y cancelar con confirmación.
+3. **Estadísticas**: Resumen diario con timeline de actividad y gráfico semanal de barras con promedio.
 
 ## Uso
 
@@ -26,13 +27,14 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 
 ## Tecnologías Utilizadas
 
-- HTML / CSS / TypeScript
-- Astro 6
-- React 19
-- Tailwind CSS 4
-- Hono
-- Drizzle ORM
-- Bun
+- **Frontend**: Astro 6, React 19, Tailwind CSS 4, DaisyUI 5
+- **Backend**: Cloudflare Pages Functions (Hono), D1 (SQLite via Drizzle ORM), KV (Better Auth sessions)
+- **Auth**: Better Auth (external Argon2id hash service), Cloudflare Turnstile CAPTCHA
+- **State**: Zustand 5 (stores duales: API para usuarios logueados, localStorage para invitados)
+- **Validación**: Zod 3
+- **Iconos**: Lucide (via @iconify/react + astro-icon)
+- **Herramientas**: Bun 1.3.9, Biome 2.4.16, Vitest 4
+- **Infra**: Cloudflare Pages, D1, KV, R2
 
 ## Instalación
 
@@ -48,12 +50,25 @@ git clone https://github.com/Ivandv19/tempo.git
 bun install
 ```
 
-3. **Variables Prácticas**: Crea un archivo `.env` o `.dev.vars` en la raíz. Necesitarás configurar `DATABASE_URL` para la persistencia del historial y las claves de seguridad necesarias para el funcionamiento del sistema.
+3. **Variables de Entorno**: Crea un archivo `.env` o `.dev.vars` en la raíz con las siguientes variables:
 
-4. **Iniciar el Proyecto**: Borra las distracciones y enciende el temporizador localmente con:
+```env
+BETTER_AUTH_URL=http://localhost:4321
+BETTER_AUTH_SECRET=tu_secreto_aqui
+PUBLIC_TURNSTILE_SITE_KEY=tu_site_key
+TURNSTILE_SECRET_KEY=tu_secret_key
+HASH_SERVICE_URL=http://localhost:3010
+HASH_SERVICE_API_KEY=tu_api_key
+```
+
+4. **Iniciar el Proyecto**:
 
 ```bash
+# Solo frontend (sin API):
 bun run dev
+
+# Full stack con API (Cloudflare Functions):
+bun run dev:full
 ```
 
 ## Despliegue

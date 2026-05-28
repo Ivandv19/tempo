@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { useTranslations } from '../../i18n/utils';
+
+const lang = (Astro.currentLocale || 'es') as 'es' | 'en';
+const t = useTranslations(lang);
+---
+
+<Layout title="Email verificado | Tempo">
+	<div class="min-h-screen flex items-center justify-center py-8 px-4">
+		<div class="text-center space-y-6 animate-fade-in-up max-w-md">
+			<div class="text-7xl">✅</div>
+			<h1 class="text-3xl font-black">
+				{lang === 'es' ? 'Correo verificado' : 'Email verified'}
+			</h1>
+			<p class="text-base-content/70 text-lg">
+				{lang === 'es'
+					? 'Tu correo electrónico ha sido verificado exitosamente. Ya puedes iniciar sesión.'
+					: 'Your email has been verified successfully. You can now sign in.'}
+			</p>
+			<a href={lang === 'en' ? '/en/login' : '/login'} data-astro-reload class="btn btn-primary btn-lg mt-4">
+				{lang === 'es' ? 'Iniciar sesión' : 'Sign in'}
+			</a>
+		</div>
+	</div>
+</Layout>

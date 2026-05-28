@@ -1,7 +1,4 @@
 ---
-import type { FC } from 'react';
-
-// src/components/pages/AppHome.astro
 interface Props {
   lang: 'es' | 'en';
 }
@@ -10,8 +7,6 @@ import PomodoroManager from './PomodoroManager';
 
 const { lang } = Astro.props;
 ---
-
-
 
 <div class="mt-8">
     <PomodoroManager client:only="react" lang={lang} />

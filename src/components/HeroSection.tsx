@@ -1,5 +1,5 @@
 /** @jsxImportSource react */
-import { ui } from "../i18n/ui";
+import { useTranslations } from "../i18n/utils";
 
 interface Props {
 	lang: "es" | "en";
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function HeroSection({ lang, mode }: Props) {
-	const t = (key: keyof (typeof ui)["es"]) => ui[lang][key];
+	const t = useTranslations(lang);
 
 	if (mode === "focus") {
 		return (
@@ -38,16 +38,12 @@ export default function HeroSection({ lang, mode }: Props) {
 					<span className="text-(--hero-studying) font-extrabold">
 						{t("hero.span.studying")}
 					</span>{" "}
-					{lang === "es" ? "o" : "or"}{" "}
+					{t("hero.or")}{" "}
 					<span className="text-(--hero-creating) font-extrabold">
 						{t("hero.span.creating")}
 					</span>
 				</p>
-				<p className="opacity-80">
-					{lang === "es"
-						? "el método Pomodoro es tu mejor aliado."
-						: "the Pomodoro method is your best ally."}
-				</p>
+				<p className="opacity-80">{t("hero.subtitle.part2")}</p>
 			</div>
 		</div>
 	);

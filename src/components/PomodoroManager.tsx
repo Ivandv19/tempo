@@ -1,81 +1,80 @@
 /** @jsxImportSource react */
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { authClient } from "../lib/auth-client";
+import { useStore } from "../stores/store";
+import BreakTimer from "./BreakTimer";
+import ErrorBoundary from "./ErrorBoundary";
 import HeroSection from "./HeroSection";
-import TimerRun from "./TimerRun";
-import TimerSetup from "./TimerSetup";
+import TaskSelector from "./TaskSelector";
+import TimerView from "./TimerView";
+import Toast from "./Toast";
+import VerifiedHandler from "./VerifiedHandler";
 
 interface Props {
 	lang?: "es" | "en";
-	isLoggedIn?: boolean; // Keep for compatibility but prioritize session
 }
 
-const STORAGE_KEY = "pomodoro_active_session";
-
 export default function PomodoroManager({ lang = "es" }: Props) {
-	const [selectedMinutes, setSelectedMinutes] = useState<number | null>(null);
 	const { data: session } = authClient.useSession();
-	const isLoggedIn = !!session;
+	const {
+		setUser,
+		isLoggedIn,
+		initTareas,
+		initCategorias,
+		createTarea,
+		selectTarea,
+		pomodoroActivo,
+		breakActivo,
+		iniciar,
+		initPomodoros,
+		setLang,
+	} = useStore();
 
-	// 🔥 Check for saved session on mount
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		setUser(session ?? null);
+	}, [session, setUser]);
 
-		try {
-			// Only check for ACTIVE running timer state
-			const timerState = localStorage.getItem("pomodoro_timer_state");
-			if (timerState) {
-				const state = JSON.parse(timerState);
-				// Only restore if there's actual progress (timeLeft is less than total duration)
-				// This prevents auto-restoring when user just selected time but didn't start
-				const hasProgress =
-					state.currentSessionIndex > 0 ||
-					(state.timeLeft && state.timeLeft < state.initialMinutes * 60);
+	useEffect(() => {
+		setLang(lang);
+	}, [lang, setLang]);
 
-				if (state.initialMinutes && !state.isSessionFinished && hasProgress) {
-					setSelectedMinutes(state.initialMinutes);
-					return;
-				}
-			}
+	useEffect(() => {
+		initTareas(isLoggedIn);
+		initCategorias(isLoggedIn);
+		initPomodoros(isLoggedIn);
+	}, [isLoggedIn, initTareas, initCategorias, initPomodoros]);
 
-			// If we reach here, there's no active timer, so clean up any old state
-			localStorage.removeItem("pomodoro_timer_state");
-			localStorage.removeItem(STORAGE_KEY);
-		} catch (e) {
-			console.error("Error loading saved session:", e);
-			// Clean up on error
-			localStorage.removeItem("pomodoro_timer_state");
-			localStorage.removeItem(STORAGE_KEY);
+	const handleStartTask = async (nombre: string, categoriaId?: number) => {
+		const tarea = await createTarea(nombre, isLoggedIn, categoriaId);
+		if (tarea) {
+			selectTarea(tarea);
+			iniciar(tarea.id, isLoggedIn);
 		}
-	}, []);
+	};
+
+	const handleSelectTask = (tareaId: number) => {
+		iniciar(tareaId, isLoggedIn);
+	};
 
 	return (
-		<div className="w-full">
-			<HeroSection
-				lang={lang}
-				mode={selectedMinutes === null ? "default" : "focus"}
-			/>
+		<ErrorBoundary>
+			<VerifiedHandler lang={lang} />
+			<Toast />
+			<div className="w-full">
+				<HeroSection lang={lang} mode={pomodoroActivo ? "focus" : "default"} />
 
-			{selectedMinutes === null ? (
-				<TimerSetup
-					lang={lang}
-					isLoggedIn={isLoggedIn}
-					onStart={(minutes) => {
-						localStorage.setItem(
-							STORAGE_KEY,
-							JSON.stringify({ initialMinutes: minutes }),
-						);
-						setSelectedMinutes(minutes);
-					}}
-				/>
-			) : (
-				<TimerRun
-					lang={lang}
-					initialMinutes={selectedMinutes}
-					onReset={() => setSelectedMinutes(null)}
-					isLoggedIn={isLoggedIn}
-				/>
-			)}
-		</div>
+				{pomodoroActivo ? (
+					<TimerView lang={lang} />
+				) : breakActivo ? (
+					<BreakTimer lang={lang} />
+				) : (
+					<TaskSelector
+						lang={lang}
+						onSelectTask={handleSelectTask}
+						onCreateTask={handleStartTask}
+					/>
+				)}
+			</div>
+		</ErrorBoundary>
 	);
 }

@@ -1,9 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AppHome from '../components/AppHome.astro';
-const user = Astro.locals.runtime?.data?.user ?? null;
 ---
 
 <Layout title="Tempo">
-  <AppHome lang="es" user={user} />
+  <AppHome lang="es" />
 </Layout>

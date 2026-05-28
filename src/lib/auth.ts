@@ -2,6 +2,7 @@ import type { D1Database, KVNamespace } from "@cloudflare/workers-types";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
+import { Resend } from "resend";
 import * as schema from "../db/schema";
 
 interface HashResponse {
@@ -56,6 +57,8 @@ export const auth = (
 		TURNSTILE_SECRET_KEY?: string;
 		HASH_SERVICE_URL?: string;
 		HASH_SERVICE_API_KEY?: string;
+		RESEND_API_KEY?: string;
+		RESEND_FROM?: string;
 	},
 ) => {
 	if (!db) {
@@ -95,12 +98,13 @@ export const auth = (
 
 		session: {
 			expiresIn: 60 * 60 * 24 * 7,
-			updateAge: 60 * 60 * 24,
+			updateAge: 60 * 60 * 8,
 			cookieCache: {
 				enabled: true,
-				maxAge: 5 * 60,
+				maxAge: 60 * 60 * 8,
 				strategy: "compact",
 			},
+			storeSessionInDatabase: true,
 		},
 
 		secondaryStorage: kv
@@ -112,7 +116,9 @@ export const auth = (
 					set: async (key: string, value: unknown, ttl?: number) => {
 						if (ttl !== undefined) {
 							const safeTtl = Math.max(60, ttl);
-							await kv.put(key, JSON.stringify(value), { expirationTtl: safeTtl });
+							await kv.put(key, JSON.stringify(value), {
+								expirationTtl: safeTtl,
+							});
 						} else {
 							await kv.put(key, JSON.stringify(value));
 						}
@@ -125,17 +131,31 @@ export const auth = (
 
 		emailAndPassword: {
 			enabled: true,
+			autoSignIn: false,
+			requireEmailVerification: true,
+			sendResetPassword: async ({ user, url }) => {
+				if (!env?.RESEND_API_KEY) {
+					console.error("[Auth] RESEND_API_KEY no configurada");
+					return;
+				}
+				try {
+					const resend = new Resend(env.RESEND_API_KEY);
+					const result = await resend.emails.send({
+						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
+						to: user.email,
+						subject: "Restablece tu contraseña / Reset your password",
+						text: `${url}`,
+					});
+					console.log("[Auth] Reset email sent to", user.email, result);
+				} catch (error) {
+					console.error("[Auth] Error sending reset email:", error);
+				}
+			},
 			password: {
 				hash: async (password) => {
-					const isStrong =
-						password.length >= 8 &&
-						/[A-Z]/.test(password) &&
-						/[a-z]/.test(password) &&
-						(/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password));
-
-					if (!isStrong) {
+					if (password.length < 8) {
 						throw new Error(
-							"La contraseña no cumple con los requisitos de seguridad (mínimo 8 caracteres, mayúsculas y números)",
+							"La contraseña debe tener al menos 8 caracteres",
 						);
 					}
 
@@ -182,10 +202,32 @@ export const auth = (
 			},
 		},
 
-		trustedOrigins: [
-			"http://localhost:4321",
-			"https://tempo.mgdc.site",
-		],
+		emailVerification: {
+			autoSignInAfterVerification: true,
+			sendOnSignUp: false,
+			sendOnSignIn: true,
+			sendVerificationEmail: async ({ user, url, token: _token }, _request) => {
+				console.log("[Auth] sendVerificationEmail CALLED for", user?.email);
+				if (!env?.RESEND_API_KEY) {
+					console.error("[Auth] RESEND_API_KEY no configurada");
+					return;
+				}
+				try {
+					const resend = new Resend(env.RESEND_API_KEY);
+					const result = await resend.emails.send({
+						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
+						to: user.email,
+						subject: "Verifica tu correo / Verify your email",
+						text: `${url}`,
+					});
+					console.log("[Auth] Verification email sent to", user.email, result);
+				} catch (error) {
+					console.error("[Auth] Error sending verification email:", error);
+				}
+			},
+		},
+
+		trustedOrigins: ["http://localhost:4321", "https://tempo.mgdc.site"],
 
 		hooks: {
 			before: async (context) => {
@@ -205,7 +247,9 @@ export const auth = (
 						if (env?.BETTER_AUTH_URL?.includes("localhost")) {
 							return;
 						}
-						throw new Error("Error de configuración: TURNSTILE_SECRET_KEY no está definida");
+						throw new Error(
+							"Error de configuración: TURNSTILE_SECRET_KEY no está definida",
+						);
 					}
 
 					if (!token) {

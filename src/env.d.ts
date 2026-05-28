@@ -12,6 +12,12 @@ type ENV = {
 	LUCIA_KV: KVNamespace;
 	BETTER_AUTH_SECRET: string;
 	BETTER_AUTH_URL: string;
+	TURNSTILE_SECRET_KEY: string;
+	HASH_SERVICE_URL: string;
+	HASH_SERVICE_API_KEY: string;
+	PUBLIC_TURNSTILE_SITE_KEY: string;
+	RESEND_API_KEY: string;
+	RESEND_FROM?: string;
 };
 
 /**

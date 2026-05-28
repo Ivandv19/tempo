@@ -82,7 +82,7 @@ const isActive = (path: string) => {
   <div class="p-4 border-t border-base-200 space-y-4">
     <!-- Language -->
     <div class="flex items-center justify-between">
-      <span class="text-sm opacity-60">{lang === 'es' ? 'Idioma' : 'Language'}</span>
+      <span class="text-sm opacity-60">{t("nav.language")}</span>
       <div class="flex gap-1">
         {Object.entries(languages).map(([labelLang, label]) => (
           <a
@@ -102,15 +102,15 @@ const isActive = (path: string) => {
 
     <!-- Theme -->
     <div class="flex items-center justify-between">
-      <span class="text-sm opacity-60">{lang === 'es' ? 'Tema' : 'Theme'}</span>
+      <span class="text-sm opacity-60">{t("nav.theme")}</span>
       <ThemeToggle />
     </div>
 
     <!-- Auth -->
     <AuthButton
       client:only="react"
-      loginText={lang === "es" ? "Entrar" : "Login"}
-      logoutText={lang === "es" ? "Salir" : "Logout"}
+      loginText={t("nav.login")}
+      logoutText={t("nav.logout")}
       loginUrl={getRelativeLocaleUrl(lang, "login")}
     />
   </div>

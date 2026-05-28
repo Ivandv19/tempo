@@ -3,7 +3,8 @@
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import type React from "react";
 import { useRef, useState } from "react";
-import { signIn, signUp } from "../../lib/auth-client";
+import { authClient, signIn, signUp } from "../../lib/auth-client";
+import { signupSchema, loginSchema } from "../../lib/validations";
 
 /**
  * Interfaz para las traducciones pasadas desde Astro
@@ -23,11 +24,21 @@ interface Props {
 		passwordLabel: string;
 		passwordPlaceholder: string;
 		genericError: string;
+		captchaRequired: string;
+		captchaError: string;
+		captchaExpired: string;
 		loading: string;
 		passwordWeak: string;
 		passwordWeakText: string;
 		passwordMediumText: string;
 		passwordStrongText: string;
+		forgotLink: string;
+		forgotLinkText: string;
+		emailVerificationSent: string;
+		signupSuccess: string;
+		backHome: string;
+		confirmPasswordLabel: string;
+		confirmPasswordPlaceholder: string;
 	};
 	redirectPath: string;
 }
@@ -42,9 +53,11 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 	const [loading, setLoading] = useState(false); // Estado de carga durante las peticiones
 	const [error, setError] = useState<string | null>(null); // Mensajes de error para el usuario
 	const [turnstileToken, setTurnstileToken] = useState<string | null>(null); // Token de verificación de Cloudflare
-	const [showPassword, setShowPassword] = useState(false); // Controla la visibilidad de la contraseña
-	const [password, setPassword] = useState(""); // Valor de la contraseña para validación en tiempo real
-	const [strength, setStrength] = useState(0); // 0: Vacío, 1: Débil, 2: Medio, 3: Fuerte
+	const [showPassword, setShowPassword] = useState(false);
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [strength, setStrength] = useState(0);
+	const [signupDone, setSignupDone] = useState(false);
 	const turnstileRef = useRef<TurnstileInstance>(null); // Referencia para controlar el widget de Turnstile
 
 	/**
@@ -56,6 +69,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 		setError(null);
 		setTurnstileToken(null);
 		setPassword("");
+		setConfirmPassword("");
 		setStrength(0);
 		turnstileRef.current?.reset();
 	};
@@ -87,28 +101,38 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 		e.preventDefault();
 		setError(null);
 
-		// Verificación obligatoria de Turnstile en el cliente
 		if (!turnstileToken) {
-			setError("Por favor completa la verificación de seguridad");
+			setError(translations.captchaRequired);
 			return;
 		}
 
-		// Validación de fortaleza en el registro
-		if (!isLogin && strength < 3) {
-			setError(translations.passwordWeak);
-			return;
+		const formData = new FormData(e.currentTarget);
+		const email = formData.get("email") as string;
+		const password = formData.get("password") as string;
+		const confirmPassword = formData.get("confirmPassword") as string;
+
+		if (isLogin) {
+			const result = loginSchema.safeParse({ email, password });
+			if (!result.success) {
+				setError(result.error.issues[0]?.message || translations.genericError);
+				return;
+			}
+		} else {
+			const result = signupSchema.safeParse({
+				email,
+				password,
+				confirmPassword,
+			});
+			if (!result.success) {
+				setError(result.error.issues[0]?.message || translations.passwordWeak);
+				return;
+			}
 		}
 
 		setLoading(true);
 
-		// Obtención de datos del formulario de forma nativa
-		const formData = new FormData(e.currentTarget);
-		const email = formData.get("email") as string;
-		const password = formData.get("password") as string;
-
 		try {
 			if (isLogin) {
-				// --- Proceso de Inicio de Sesión ---
 				const { error } = await signIn.email({
 					email,
 					password,
@@ -125,7 +149,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 				const { error } = await signUp.email({
 					email,
 					password,
-					name: email.split("@")[0] || "User", // Nombre por defecto basado en el email
+					name: email.split("@")[0] || "User",
 					fetchOptions: {
 						headers: {
 							"x-turnstile-token": turnstileToken,
@@ -133,6 +157,17 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 					},
 				});
 				if (error) throw new Error(error.message || translations.genericError);
+
+				// autoSignIn: false → mostrar mensaje de verificación
+				authClient.sendVerificationEmail({
+					email,
+					callbackURL: "/?verified=true",
+				});
+				setSignupDone(true);
+				setLoading(false);
+				setTurnstileToken(null);
+				turnstileRef.current?.reset();
+				return;
 			}
 
 			// Si todo sale bien, redirigir a la ruta especificada
@@ -145,6 +180,24 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 			turnstileRef.current?.reset();
 		}
 	};
+
+	if (signupDone) {
+		return (
+			<div className="max-w-md w-full mx-4 text-center space-y-6 animate-fade-in-up">
+				<div className="text-6xl">📧</div>
+				<h2 className="text-2xl font-bold">
+					{translations.emailVerificationSent || "Revisa tu email"}
+				</h2>
+				<p className="text-sm opacity-70">
+					{translations.signupSuccess ||
+						"Te enviamos un link de verificación. Revisa tu bandeja de entrada."}
+				</p>
+				<a href={redirectPath} className="btn btn-primary">
+					{translations.backHome || "Volver al inicio"}
+				</a>
+			</div>
+		);
+	}
 
 	return (
 		<div className="max-w-md w-full space-y-8 bg-base-100/50 backdrop-blur-sm border border-base-200 p-10 rounded-3xl shadow-2xl animate-fade-in transition-all duration-300">
@@ -299,35 +352,68 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 							</button>
 						</div>
 
-						{/* Indicador de Fortaleza (Solo en Signup) */}
 						{!isLogin && password && (
 							<div className="mt-2 px-1">
 								<div className="flex justify-between items-center mb-1">
-									<span className="text-[10px] font-bold uppercase tracking-wider text-(--auth-label)">
-										{strength === 1
-											? translations.passwordWeakText
-											: strength === 2
-												? translations.passwordMediumText
-												: translations.passwordStrongText}
+									<span className={`text-[10px] font-bold uppercase tracking-wider ${
+										strength <= 1 ? "text-red-500" : strength === 2 ? "text-yellow-500" : "text-green-500"
+									}`}>
+										{strength === 0 ? "" : strength === 1 ? translations.passwordWeakText : strength === 2 ? translations.passwordMediumText : translations.passwordStrongText}
 									</span>
-									<span className="text-[10px] font-mono text-(--auth-label)">
-										{password.length}/8+
+									<span className="text-[10px] font-mono text-(--auth-placeholder)">
+										{password.length}/8
 									</span>
 								</div>
-								<div className="h-1.5 w-full bg-base-300 rounded-full overflow-hidden flex gap-1">
+								<div className="w-full h-1.5 bg-(--auth-border) rounded-full overflow-hidden">
 									<div
-										className={`h-full transition-all duration-500 rounded-full ${strength >= 1 ? "w-1/3 bg-red-500" : "w-0"}`}
-									/>
-									<div
-										className={`h-full transition-all duration-500 rounded-full ${strength >= 2 ? "w-1/3 bg-yellow-500" : "w-0"}`}
-									/>
-									<div
-										className={`h-full transition-all duration-500 rounded-full ${strength >= 3 ? "w-1/3 bg-green-500" : "w-0"}`}
+										className={`h-full transition-all duration-500 rounded-full ${
+											strength === 0 ? "w-0" : strength === 1 ? "w-1/3 bg-red-500" : strength === 2 ? "w-2/3 bg-yellow-500" : "w-full bg-green-500"
+										}`}
 									/>
 								</div>
 							</div>
 						)}
+						{isLogin && (
+							<div className="mt-2 text-right">
+								<a
+									href={translations.forgotLink || "/forgot-password"}
+									data-astro-reload
+									className="text-xs font-medium text-(--auth-accent) hover:text-(--auth-accent-hover) underline underline-offset-4 transition-colors"
+								>
+									{translations.forgotLinkText || "¿Olvidaste tu contraseña?"}
+								</a>
+							</div>
+						)}
 					</div>
+					{!isLogin && (
+						<div className="group">
+							<label
+								htmlFor="confirm-password"
+								className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
+							>
+								{translations.confirmPasswordLabel}
+							</label>
+							<div className="relative group-focus-within:scale-[1.01] transition-transform">
+								<input
+									id="confirm-password"
+									name="confirmPassword"
+									type={showPassword ? "text" : "password"}
+									autoComplete="new-password"
+									required
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
+									placeholder={translations.confirmPasswordPlaceholder}
+								/>
+								<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+										<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+										<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+									</svg>
+								</span>
+							</div>
+						</div>
+					)}
 				</div>
 
 				{/* Sección de Mensajes de Error */}
@@ -366,15 +452,11 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						onSuccess={(token) => setTurnstileToken(token)}
 						onError={() => {
 							setTurnstileToken(null);
-							setError(
-								"La verificación de seguridad falló. Por favor intenta de nuevo.",
-							);
+							setError(translations.captchaError);
 						}}
 						onExpire={() => {
 							setTurnstileToken(null);
-							setError(
-								"La verificación de seguridad expiró. Por favor intenta de nuevo.",
-							);
+							setError(translations.captchaExpired);
 						}}
 					/>
 				</div>
@@ -384,7 +466,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 					<button
 						type="submit"
 						disabled={loading}
-						className="btn btn-primary w-full h-14 text-sm font-black rounded-2xl border-none shadow-lg hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+						className="btn btn-primary w-full h-14 text-sm font-black rounded-2xl border-none shadow-lg hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50"
 					>
 						{loading ? (
 							<span className="flex items-center space-x-2">
