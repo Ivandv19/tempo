@@ -14,7 +14,6 @@
 		"format": "biome format --write .",
 		"lint": "biome lint --write .",
 		"check": "biome check --write .",
-		"test": "vitest run",
 		"gen:secret": "bun -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
 	},
 	"overrides": {
@@ -47,12 +46,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
 		"@cloudflare/workers-types": "^4.20260527.1",
-		"@testing-library/jest-dom": "^6.9.1",
-		"@testing-library/react": "^16.3.2",
-		"@testing-library/user-event": "^14.6.1",
-		"@vitejs/plugin-react": "^6.0.2",
-		"daisyui": "^5.5.20",
-		"jsdom": "^29.1.1",
-		"vitest": "^4.1.7"
+		"daisyui": "^5.5.20"
 	}
 }
