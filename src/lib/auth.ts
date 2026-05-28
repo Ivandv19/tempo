@@ -96,12 +96,17 @@ export const auth = (
 						return value ? JSON.parse(value) : null;
 					},
 					set: async (key: string, value: unknown, ttl?: number) => {
-						if (ttl !== undefined) {
-							const safeTtl = Math.max(60, ttl);
-							await kv.put(key, JSON.stringify(value), {
-								expirationTtl: safeTtl,
-							});
-						} else {
+						try {
+							if (ttl !== undefined) {
+								const safeTtl = Math.max(60, ttl);
+								await kv.put(key, JSON.stringify(value), {
+									expirationTtl: safeTtl,
+								});
+							} else {
+								await kv.put(key, JSON.stringify(value));
+							}
+						} catch (e) {
+							console.warn("[KV] fallback sin TTL:", e);
 							await kv.put(key, JSON.stringify(value));
 						}
 					},
