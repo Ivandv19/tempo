@@ -49,15 +49,17 @@ export default function TaskSelector({
 		history,
 		tareasPendientes,
 		isLoggedIn,
-	} = useStore(useShallow((s) => ({
-		tareas: s.tareas,
-		categorias: s.categorias,
-		updateTarea: s.updateTarea,
-		deleteTarea: s.deleteTarea,
-		history: s.history,
-		tareasPendientes: s.tareasPendientes,
-		isLoggedIn: s.isLoggedIn,
-	})));
+	} = useStore(
+		useShallow((s) => ({
+			tareas: s.tareas,
+			categorias: s.categorias,
+			updateTarea: s.updateTarea,
+			deleteTarea: s.deleteTarea,
+			history: s.history,
+			tareasPendientes: s.tareasPendientes,
+			isLoggedIn: s.isLoggedIn,
+		})),
+	);
 	const t = useTranslations(lang);
 	const [nombre, setNombre] = useState("");
 	const [categoriaId, setCategoriaId] = useState<number | undefined>();

@@ -141,9 +141,7 @@ export const auth = (
 			password: {
 				hash: async (password) => {
 					if (password.length < 8) {
-						throw new Error(
-							"La contraseña debe tener al menos 8 caracteres",
-						);
+						throw new Error("La contraseña debe tener al menos 8 caracteres");
 					}
 
 					const healthy = await checkHashService(env?.HASH_SERVICE_URL || "");

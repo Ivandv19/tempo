@@ -49,8 +49,8 @@ const errorSchema = z.object({
 });
 const successSchema = z.object({ success: z.literal(true) });
 
-function dataResponse<T extends z.ZodType>(schema: T) {
-	return z.object({ data: schema });
+function dataResponse<T extends z.ZodType>(schema: T, name: string) {
+	return z.object({ data: schema }).openapi(name);
 }
 
 const checkRateLimit = async (
@@ -103,7 +103,10 @@ app.openapi(
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(z.array(categoriaResponseSchema)),
+						schema: dataResponse(
+							z.array(categoriaResponseSchema),
+							"CategoriasResponse",
+						),
 					},
 				},
 				description: "Lista de categorías del usuario",
@@ -133,12 +136,16 @@ app.openapi(
 		method: "post",
 		path: "/categorias/seed",
 		tags: ["Categorías"],
-		description: "Crear las tres categorías por defecto (Trabajo, Estudio, Personal)",
+		description:
+			"Crear las tres categorías por defecto (Trabajo, Estudio, Personal)",
 		responses: {
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(z.array(categoriaResponseSchema)),
+						schema: dataResponse(
+							z.array(categoriaResponseSchema),
+							"CategoriasSeedResponse",
+						),
 					},
 				},
 				description: "Categorías por defecto creadas",
@@ -195,7 +202,10 @@ app.openapi(
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(z.array(tareaResponseSchema)),
+						schema: dataResponse(
+							z.array(tareaResponseSchema),
+							"TareasResponse",
+						),
 					},
 				},
 				description: "Lista de tareas del usuario",
@@ -236,13 +246,17 @@ app.openapi(
 		method: "get",
 		path: "/tareas/{id}",
 		tags: ["Tareas"],
-		description: "Obtener detalle de una tarea con sus pomodoros y estadísticas",
+		description:
+			"Obtener detalle de una tarea con sus pomodoros y estadísticas",
 		request: { params: z.object({ id: idParamSchema }) },
 		responses: {
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(tareaDetalleResponseSchema),
+						schema: dataResponse(
+							tareaDetalleResponseSchema,
+							"TareaDetalleResponse",
+						),
 					},
 				},
 				description: "Detalle de tarea con pomodoros y estadísticas",
@@ -299,7 +313,9 @@ app.openapi(
 		responses: {
 			201: {
 				content: {
-					"application/json": { schema: dataResponse(tareaResponseSchema) },
+					"application/json": {
+						schema: dataResponse(tareaResponseSchema, "TareaCreadaResponse"),
+					},
 				},
 				description: "Tarea creada",
 			},
@@ -346,7 +362,8 @@ app.openapi(
 		method: "patch",
 		path: "/tareas/{id}",
 		tags: ["Tareas"],
-		description: "Actualizar parcialmente una tarea (nombre, categoría o estado)",
+		description:
+			"Actualizar parcialmente una tarea (nombre, categoría o estado)",
 		request: {
 			params: z.object({ id: idParamSchema }),
 			body: {
@@ -461,7 +478,12 @@ app.openapi(
 		responses: {
 			201: {
 				content: {
-					"application/json": { schema: dataResponse(pomodoroResponseSchema) },
+					"application/json": {
+						schema: dataResponse(
+							pomodoroResponseSchema,
+							"PomodoroCreadoResponse",
+						),
+					},
 				},
 				description: "Pomodoro registrado",
 			},
@@ -514,7 +536,10 @@ app.openapi(
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(z.array(pomodoroResponseSchema)),
+						schema: dataResponse(
+							z.array(pomodoroResponseSchema),
+							"PomodorosResponse",
+						),
 					},
 				},
 				description: "Pomodoros del día",
@@ -549,12 +574,15 @@ app.openapi(
 		method: "get",
 		path: "/pomodoros/stats",
 		tags: ["Pomodoros"],
-		description: "Obtener estadísticas de pomodoros del día (total y tiempo acumulado)",
+		description:
+			"Obtener estadísticas de pomodoros del día (total y tiempo acumulado)",
 		request: { query: statsQuery },
 		responses: {
 			200: {
 				content: {
-					"application/json": { schema: dataResponse(statsResponseSchema) },
+					"application/json": {
+						schema: dataResponse(statsResponseSchema, "StatsResponse"),
+					},
 				},
 				description: "Estadísticas de pomodoros del día",
 			},
@@ -597,7 +625,9 @@ app.openapi(
 		responses: {
 			201: {
 				content: {
-					"application/json": { schema: dataResponse(breakResponseSchema) },
+					"application/json": {
+						schema: dataResponse(breakResponseSchema, "BreakCreadoResponse"),
+					},
 				},
 				description: "Break registrado",
 			},
@@ -659,7 +689,10 @@ app.openapi(
 			200: {
 				content: {
 					"application/json": {
-						schema: dataResponse(z.array(breakResponseSchema)),
+						schema: dataResponse(
+							z.array(breakResponseSchema),
+							"BreaksResponse",
+						),
 					},
 				},
 				description: "Breaks del día",
@@ -716,9 +749,16 @@ app.all("*", async (c) => {
 			const ip = c.req.header("cf-connecting-ip") || "unknown";
 			const allowed = await checkRateLimit(kv, ip);
 			if (!allowed) {
-				const lang = c.req.header("Accept-Language")?.startsWith("en") ? "en" : "es";
+				const lang = c.req.header("Accept-Language")?.startsWith("en")
+					? "en"
+					: "es";
 				return c.json(
-					{ error: lang === "es" ? "Demasiados intentos. Intente de nuevo en 5 minutos." : "Too many attempts. Please try again in 5 minutes." },
+					{
+						error:
+							lang === "es"
+								? "Demasiados intentos. Intente de nuevo en 5 minutos."
+								: "Too many attempts. Please try again in 5 minutes.",
+					},
 					429,
 				);
 			}
@@ -726,18 +766,18 @@ app.all("*", async (c) => {
 	}
 
 	const turnstileToken = c.req.header("x-turnstile-token");
-const authInstance = auth(c.env.DB, c.env.LUCIA_KV, c.env);
+	const authInstance = auth(c.env.DB, c.env.LUCIA_KV, c.env);
 
-let requestHandler = c.req.raw;
-if (turnstileToken) {
-	const headers = new Headers(c.req.raw.headers);
-	if (!headers.has("x-turnstile-token")) {
-		headers.set("x-turnstile-token", turnstileToken);
+	let requestHandler = c.req.raw;
+	if (turnstileToken) {
+		const headers = new Headers(c.req.raw.headers);
+		if (!headers.has("x-turnstile-token")) {
+			headers.set("x-turnstile-token", turnstileToken);
+		}
+		requestHandler = new Request(c.req.raw, { headers });
 	}
-	requestHandler = new Request(c.req.raw, { headers });
-}
 
-return authInstance.handler(requestHandler);
-})
+	return authInstance.handler(requestHandler);
+});
 
 export const onRequest = handle(app);

@@ -34,19 +34,21 @@ export default function TimerView({ lang }: Props) {
 		history,
 		isLoggedIn,
 		iniciarBreak,
-	} = useStore(useShallow((s) => ({
-		tareas: s.tareas,
-		updateTarea: s.updateTarea,
-		pomodoroActivo: s.pomodoroActivo,
-		tareaActiva: s.tareaActiva,
-		completar: s.completar,
-		deleteTarea: s.deleteTarea,
-		interrumpir: s.interrumpir,
-		reset: s.reset,
-		history: s.history,
-		isLoggedIn: s.isLoggedIn,
-		iniciarBreak: s.iniciarBreak,
-	})));
+	} = useStore(
+		useShallow((s) => ({
+			tareas: s.tareas,
+			updateTarea: s.updateTarea,
+			pomodoroActivo: s.pomodoroActivo,
+			tareaActiva: s.tareaActiva,
+			completar: s.completar,
+			deleteTarea: s.deleteTarea,
+			interrumpir: s.interrumpir,
+			reset: s.reset,
+			history: s.history,
+			isLoggedIn: s.isLoggedIn,
+			iniciarBreak: s.iniciarBreak,
+		})),
+	);
 	const POMODORO_SECONDS = (pomodoroActivo?.minutesPlanned || 25) * 60;
 	const savedSecs = (() => {
 		try {

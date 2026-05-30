@@ -45,8 +45,6 @@ export const crearSliceTareas = (
 			} catch (error) {
 				console.error("[TareaStore] init tareas error:", error);
 			}
-
-
 		} else {
 			try {
 				const saved = localStorage.getItem(TAREAS_KEY);

@@ -33,9 +33,7 @@ export default function Toast() {
 						</div>
 					</div>
 
-					{toast.title && (
-						<h3 className="text-xl font-black">{toast.title}</h3>
-					)}
+					{toast.title && <h3 className="text-xl font-black">{toast.title}</h3>}
 
 					<p className="text-base-content/70 text-sm leading-relaxed">
 						{toast.message}

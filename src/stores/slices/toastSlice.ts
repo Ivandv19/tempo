@@ -21,7 +21,9 @@ export const crearToastSlice = (
 	toasts: [],
 	addToast: (message, type, title) => {
 		const id = `toast-${++toastCounter}`;
-		set((state) => ({ toasts: [...state.toasts, { id, message, type, title }] }));
+		set((state) => ({
+			toasts: [...state.toasts, { id, message, type, title }],
+		}));
 		setTimeout(() => {
 			set((state) => ({
 				toasts: state.toasts.filter((t) => t.id !== id),

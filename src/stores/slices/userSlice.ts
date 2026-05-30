@@ -14,9 +14,7 @@ export interface UserSlice {
 
 export const crearSliceUsuario = (
 	set: (
-		partial:
-			| Partial<UserSlice>
-			| ((state: UserSlice) => Partial<UserSlice>),
+		partial: Partial<UserSlice> | ((state: UserSlice) => Partial<UserSlice>),
 	) => void,
 ): UserSlice => ({
 	user: null,

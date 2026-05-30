@@ -133,93 +133,115 @@ export const statsQuery = z.object({
 
 // ─── Response ─────────────────────────────────────────────
 
-export const categoriaResponse = z.object({
-	id: z.number().openapi({ description: "ID de la categoría" }),
-	nombre: z.string().openapi({ description: "Nombre de la categoría" }),
-});
+export const categoriaResponse = z
+	.object({
+		id: z.number().openapi({ description: "ID de la categoría" }),
+		nombre: z.string().openapi({ description: "Nombre de la categoría" }),
+	})
+	.openapi("CategoriaResponse");
 
-export const tareaResponse = z.object({
-	id: z.number().openapi({ description: "ID de la tarea" }),
-	nombre: z.string().openapi({ description: "Nombre de la tarea" }),
-	categoriaId: z
-		.number()
-		.openapi({ description: "ID de la categoría" })
-		.nullable(),
-	estado: z.enum(ESTADOS_TAREA).openapi({ description: "Estado de la tarea" }),
-	createdAt: z.number().openapi({ description: "Timestamp de creación" }),
-	completedAt: z
-		.number()
-		.openapi({ description: "Timestamp de finalización" })
-		.nullable(),
-});
+export const tareaResponse = z
+	.object({
+		id: z.number().openapi({ description: "ID de la tarea" }),
+		nombre: z.string().openapi({ description: "Nombre de la tarea" }),
+		categoriaId: z
+			.number()
+			.openapi({ description: "ID de la categoría" })
+			.nullable(),
+		estado: z
+			.enum(ESTADOS_TAREA)
+			.openapi({ description: "Estado de la tarea" }),
+		createdAt: z.number().openapi({ description: "Timestamp de creación" }),
+		completedAt: z
+			.number()
+			.openapi({ description: "Timestamp de finalización" })
+			.nullable(),
+	})
+	.openapi("TareaResponse");
 
-export const tareaDetalleResponse = tareaResponse.extend({
-	pomodoros: z
-		.array(
-			z.object({
-				id: z.number().openapi({ description: "ID del pomodoro" }),
-				status: z
-					.enum(ESTADOS_POMODORO)
-					.openapi({ description: "Estado del pomodoro" }),
-				minutesPlanned: z
+export const tareaDetalleResponse = tareaResponse
+	.extend({
+		pomodoros: z
+			.array(
+				z.object({
+					id: z.number().openapi({ description: "ID del pomodoro" }),
+					status: z
+						.enum(ESTADOS_POMODORO)
+						.openapi({ description: "Estado del pomodoro" }),
+					minutesPlanned: z
+						.number()
+						.openapi({ description: "Minutos planificados" }),
+					minutesActual: z
+						.number()
+						.openapi({ description: "Minutos reales trabajados" })
+						.nullable(),
+					createdAt: z
+						.number()
+						.openapi({ description: "Timestamp de creación" }),
+				}),
+			)
+			.openapi({ description: "Pomodoros asociados a la tarea" }),
+		stats: z
+			.object({
+				total: z
 					.number()
-					.openapi({ description: "Minutos planificados" }),
-				minutesActual: z
+					.openapi({ description: "Total de pomodoros completados" }),
+				totalTime: z
 					.number()
-					.openapi({ description: "Minutos reales trabajados" })
-					.nullable(),
-				createdAt: z.number().openapi({ description: "Timestamp de creación" }),
-			}),
-		)
-		.openapi({ description: "Pomodoros asociados a la tarea" }),
-	stats: z
-		.object({
-			total: z
-				.number()
-				.openapi({ description: "Total de pomodoros completados" }),
-			totalTime: z.number().openapi({ description: "Tiempo total en minutos" }),
-		})
-		.openapi({ description: "Estadísticas de pomodoros" }),
-});
+					.openapi({ description: "Tiempo total en minutos" }),
+			})
+			.openapi({ description: "Estadísticas de pomodoros" }),
+	})
+	.openapi("TareaDetalleResponse");
 
-export const pomodoroResponse = z.object({
-	id: z.number().openapi({ description: "ID del pomodoro" }),
-	tareaId: z.number().openapi({ description: "ID de la tarea" }),
-	status: z
-		.enum(ESTADOS_POMODORO)
-		.openapi({ description: "Estado del pomodoro" }),
-	minutesPlanned: z.number().openapi({ description: "Minutos planificados" }),
-	minutesActual: z
-		.number()
-		.openapi({ description: "Minutos reales trabajados" })
-		.nullable(),
-	createdAt: z.number().openapi({ description: "Timestamp de creación" }),
-	tareaNombre: z
-		.string()
-		.openapi({ description: "Nombre de la tarea (join)" })
-		.optional(),
-});
+export const pomodoroResponse = z
+	.object({
+		id: z.number().openapi({ description: "ID del pomodoro" }),
+		tareaId: z.number().openapi({ description: "ID de la tarea" }),
+		status: z
+			.enum(ESTADOS_POMODORO)
+			.openapi({ description: "Estado del pomodoro" }),
+		minutesPlanned: z.number().openapi({ description: "Minutos planificados" }),
+		minutesActual: z
+			.number()
+			.openapi({ description: "Minutos reales trabajados" })
+			.nullable(),
+		createdAt: z.number().openapi({ description: "Timestamp de creación" }),
+		tareaNombre: z
+			.string()
+			.openapi({ description: "Nombre de la tarea (join)" })
+			.optional(),
+	})
+	.openapi("PomodoroResponse");
 
-export const statsResponse = z.object({
-	total: z.number().openapi({ description: "Total de pomodoros completados" }),
-	totalTime: z.number().openapi({ description: "Tiempo total en minutos" }),
-});
+export const statsResponse = z
+	.object({
+		total: z
+			.number()
+			.openapi({ description: "Total de pomodoros completados" }),
+		totalTime: z.number().openapi({ description: "Tiempo total en minutos" }),
+	})
+	.openapi("StatsResponse");
 
-export const breakResponse = z.object({
-	id: z.number().openapi({ description: "ID del descanso" }),
-	tipo: z.enum(TIPOS_BREAK).openapi({ description: "Tipo de descanso" }),
-	status: z.enum(ESTADOS_BREAK).openapi({ description: "Estado del descanso" }),
-	minutesPlanned: z.number().openapi({ description: "Minutos planificados" }),
-	minutesActual: z
-		.number()
-		.openapi({ description: "Minutos reales de descanso" })
-		.nullable(),
-	createdAt: z.number().openapi({ description: "Timestamp de creación" }),
-	completedAt: z
-		.number()
-		.openapi({ description: "Timestamp de finalización" })
-		.nullable(),
-});
+export const breakResponse = z
+	.object({
+		id: z.number().openapi({ description: "ID del descanso" }),
+		tipo: z.enum(TIPOS_BREAK).openapi({ description: "Tipo de descanso" }),
+		status: z
+			.enum(ESTADOS_BREAK)
+			.openapi({ description: "Estado del descanso" }),
+		minutesPlanned: z.number().openapi({ description: "Minutos planificados" }),
+		minutesActual: z
+			.number()
+			.openapi({ description: "Minutos reales de descanso" })
+			.nullable(),
+		createdAt: z.number().openapi({ description: "Timestamp de creación" }),
+		completedAt: z
+			.number()
+			.openapi({ description: "Timestamp de finalización" })
+			.nullable(),
+	})
+	.openapi("BreakResponse");
 
 // ─── Tipos Inferidos ─────────────────────────────────────
 

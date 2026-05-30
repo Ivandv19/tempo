@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { crearSliceBreaks, type BreakSlice } from "./slices/breakSlice";
+import { type BreakSlice, crearSliceBreaks } from "./slices/breakSlice";
 import {
-	crearSliceCategorias,
 	type CategoriaSlice,
+	crearSliceCategorias,
 } from "./slices/categoriaSlice";
 import {
 	crearSlicePomodoros,

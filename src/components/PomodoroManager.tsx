@@ -26,18 +26,20 @@ export default function PomodoroManager({ lang = "es" }: Props) {
 		iniciar,
 		initPomodoros,
 		setLang,
-	} = useStore(useShallow((s) => ({
-		isLoggedIn: s.isLoggedIn,
-		initTareas: s.initTareas,
-		initCategorias: s.initCategorias,
-		createTarea: s.createTarea,
-		selectTarea: s.selectTarea,
-		pomodoroActivo: s.pomodoroActivo,
-		breakActivo: s.breakActivo,
-		iniciar: s.iniciar,
-		initPomodoros: s.initPomodoros,
-		setLang: s.setLang,
-	})));
+	} = useStore(
+		useShallow((s) => ({
+			isLoggedIn: s.isLoggedIn,
+			initTareas: s.initTareas,
+			initCategorias: s.initCategorias,
+			createTarea: s.createTarea,
+			selectTarea: s.selectTarea,
+			pomodoroActivo: s.pomodoroActivo,
+			breakActivo: s.breakActivo,
+			iniciar: s.iniciar,
+			initPomodoros: s.initPomodoros,
+			setLang: s.setLang,
+		})),
+	);
 
 	useEffect(() => {
 		setLang(lang);

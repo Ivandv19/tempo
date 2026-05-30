@@ -16,9 +16,10 @@ export default function VerifiedHandler({ lang = "es" }: Props) {
 		if (params.get("verified") === "true") {
 			done.current = true;
 			const title = lang === "es" ? "¡Correo verificado!" : "Email verified!";
-			const message = lang === "es"
-				? "Tu cuenta ha sido verificada exitosamente. Bienvenido a Tempo."
-				: "Your account has been verified successfully. Welcome to Tempo.";
+			const message =
+				lang === "es"
+					? "Tu cuenta ha sido verificada exitosamente. Bienvenido a Tempo."
+					: "Your account has been verified successfully. Welcome to Tempo.";
 			addToast(message, "success", title);
 
 			const url = new URL(window.location.href);

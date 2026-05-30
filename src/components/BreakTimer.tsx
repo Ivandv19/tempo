@@ -62,9 +62,7 @@ export default function BreakTimer({ lang }: Props) {
 						✓
 					</div>
 					<h2 className="text-3xl font-black">{t("break.done_title")}</h2>
-					<p className="text-base-content/60 text-sm">
-						{t("break.done_desc")}
-					</p>
+					<p className="text-base-content/60 text-sm">{t("break.done_desc")}</p>
 					<button
 						type="button"
 						onClick={handleContinue}
@@ -122,30 +120,10 @@ export default function BreakTimer({ lang }: Props) {
 							strokeDashoffset: dashOffset,
 						}}
 					/>
-					<circle
-						cx="140"
-						cy="20"
-						r="3.5"
-						className="fill-base-content/20"
-					/>
-					<circle
-						cx="260"
-						cy="140"
-						r="3.5"
-						className="fill-base-content/20"
-					/>
-					<circle
-						cx="140"
-						cy="260"
-						r="3.5"
-						className="fill-base-content/20"
-					/>
-					<circle
-						cx="20"
-						cy="140"
-						r="3.5"
-						className="fill-base-content/20"
-					/>
+					<circle cx="140" cy="20" r="3.5" className="fill-base-content/20" />
+					<circle cx="260" cy="140" r="3.5" className="fill-base-content/20" />
+					<circle cx="140" cy="260" r="3.5" className="fill-base-content/20" />
+					<circle cx="20" cy="140" r="3.5" className="fill-base-content/20" />
 				</svg>
 
 				<div className="absolute flex flex-col items-center">

@@ -21,9 +21,7 @@ export interface BreakSlice {
 
 export const crearSliceBreaks = (
 	set: (
-		partial:
-			| Partial<BreakSlice>
-			| ((state: BreakSlice) => Partial<BreakSlice>),
+		partial: Partial<BreakSlice> | ((state: BreakSlice) => Partial<BreakSlice>),
 	) => void,
 	get: () => BreakSlice,
 ): BreakSlice => ({
@@ -73,9 +71,7 @@ export const crearSliceBreaks = (
 		const { breakActivo } = get();
 		if (!breakActivo) return;
 
-		const elapsed = Math.round(
-			(Date.now() - breakActivo.startedAt) / 60000,
-		);
+		const elapsed = Math.round((Date.now() - breakActivo.startedAt) / 60000);
 
 		if (isLoggedIn) {
 			try {

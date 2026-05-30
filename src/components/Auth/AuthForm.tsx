@@ -4,7 +4,7 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import type React from "react";
 import { useRef, useState } from "react";
 import { authClient, signIn, signUp } from "../../lib/auth-client";
-import { signupSchema, loginSchema } from "../../lib/validations";
+import { loginSchema, signupSchema } from "../../lib/validations";
 
 /**
  * Interfaz para las traducciones pasadas desde Astro
@@ -355,10 +355,22 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						{!isLogin && password && (
 							<div className="mt-2 px-1">
 								<div className="flex justify-between items-center mb-1">
-									<span className={`text-[10px] font-bold uppercase tracking-wider ${
-										strength <= 1 ? "text-red-500" : strength === 2 ? "text-yellow-500" : "text-green-500"
-									}`}>
-										{strength === 0 ? "" : strength === 1 ? translations.passwordWeakText : strength === 2 ? translations.passwordMediumText : translations.passwordStrongText}
+									<span
+										className={`text-[10px] font-bold uppercase tracking-wider ${
+											strength <= 1
+												? "text-red-500"
+												: strength === 2
+													? "text-yellow-500"
+													: "text-green-500"
+										}`}
+									>
+										{strength === 0
+											? ""
+											: strength === 1
+												? translations.passwordWeakText
+												: strength === 2
+													? translations.passwordMediumText
+													: translations.passwordStrongText}
 									</span>
 									<span className="text-[10px] font-mono text-(--auth-placeholder)">
 										{password.length}/8
@@ -367,7 +379,13 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 								<div className="w-full h-1.5 bg-(--auth-border) rounded-full overflow-hidden">
 									<div
 										className={`h-full transition-all duration-500 rounded-full ${
-											strength === 0 ? "w-0" : strength === 1 ? "w-1/3 bg-red-500" : strength === 2 ? "w-2/3 bg-yellow-500" : "w-full bg-green-500"
+											strength === 0
+												? "w-0"
+												: strength === 1
+													? "w-1/3 bg-red-500"
+													: strength === 2
+														? "w-2/3 bg-yellow-500"
+														: "w-full bg-green-500"
 										}`}
 									/>
 								</div>
@@ -406,7 +424,18 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 									placeholder={translations.confirmPasswordPlaceholder}
 								/>
 								<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
-									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
 										<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
 										<path d="M7 11V7a5 5 0 0 1 10 0v4" />
 									</svg>

@@ -7,11 +7,7 @@ interface Props {
 	onBack: () => void;
 }
 
-export default function CancelConfirmDialog({
-	lang,
-	onCancel,
-	onBack,
-}: Props) {
+export default function CancelConfirmDialog({ lang, onCancel, onBack }: Props) {
 	const t = useTranslations(lang);
 
 	return (
